@@ -24,7 +24,9 @@ fn index() -> &'static str {
 #[get("/time")]
 fn time_now() -> Json<Timestamp> {
     let now = Utc::now();
-    let timestamp = Timestamp { time: now.to_rfc3339() };
+    let timestamp = Timestamp {
+        time: now.to_rfc3339(),
+    };
 
     Json(timestamp)
 }

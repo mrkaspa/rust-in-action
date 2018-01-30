@@ -8,15 +8,21 @@ use std::io::{self, BufReader};
 use clap::{App, Arg};
 use regex::Regex;
 
-fn process_lines<T: BufRead + Sized>(reader: T, re: Regex) {
-    for line_ in reader.lines() {
+type Line = (usize, String);
+
+fn get_lines<T: BufRead + Sized>(reader: T, re: Regex) -> Vec<Line> {
+    let mut v: Vec<Line> = Vec::new();
+    for (i, line_) in reader.lines().enumerate() {
         let line = line_.unwrap();
 
         match re.find(&line) {
-            Some(_) => println!("{}", line),
+            Some(_) => {
+                v.push((i, line));
+            }
             None => (),
         }
     }
+    v
 }
 
 fn main() {
@@ -42,15 +48,20 @@ fn main() {
 
     let input = args.value_of("input").unwrap_or("-");
 
-    if input == "-" {
+    let lines = if input == "-" {
         let stdin = io::stdin();
         let reader = stdin.lock();
 
-        process_lines(reader, re);
+        get_lines(reader, re)
     } else {
         let file = File::open(input).unwrap();
         let reader = BufReader::new(file);
 
-        process_lines(reader, re);
+        get_lines(reader, re)
+    };
+
+    println!("\nRESULTS\n-------");
+    for (i, line) in lines {
+        println!("{} - {}", i, line);
     }
 }
